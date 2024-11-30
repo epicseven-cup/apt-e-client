@@ -5,6 +5,7 @@ import (
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"google.golang.org/api/gmail/v1"
+	"strings"
 )
 
 type MailView struct {
@@ -31,6 +32,10 @@ func (m MailView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "esc":
 			return m.root, nil
 		}
+
+		//case tea.WindowSizeMsg:
+		//	m.height = msg.Height
+		//	m.width = msg.Width
 	}
 
 	// Note that we're not returning a command.
@@ -38,28 +43,32 @@ func (m MailView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m MailView) View() string {
-	//s := fmt.Sprintf("Header: %s\n", m.message.Payload.Headers)
-	header := ""
+	header := map[string]string{}
 	for i := range m.message.Payload.Headers {
-		header += fmt.Sprintf("Name: %s\nValue:%s\n", m.message.Payload.Headers[i].Name, m.message.Payload.Headers[i].Value)
+		header[m.message.Payload.Headers[i].Name] = m.message.Payload.Headers[i].Value
 	}
-	s := fmt.Sprintf("Header: %s\n", header)
-	for _ = range s {
+	s := fmt.Sprintf("Subject: %s\nFrom: %s\nTo:%s\n", header["Subject"], header["From"], header["To"])
+
+	for _ = range 40 {
 		s += "-"
 	}
 
-	content := make([]byte, 1)
+	s += fmt.Sprintf("\nDate: %s\n", header["Date"])
+
+	body := map[string][]byte{}
 	for i := range m.message.Payload.Parts {
-		currentFrame, err := base64.URLEncoding.DecodeString(m.message.Payload.Parts[i].Body.Data)
+		content, err := base64.URLEncoding.DecodeString(m.message.Payload.Parts[i].Body.Data)
 		if err != nil {
-			fmt.Sprintf("Error: %v", err)
+			fmt.Errorf("Error: %v", err)
 		}
-		content = append(content, currentFrame...)
+		body[m.message.Payload.Parts[i].MimeType] = content
 	}
 
-	s += fmt.Sprintf("\nBody:\n\n%s", string(content))
-
+	content := string(body["text/plain"])
+	content = strings.TrimSpace(content)
+	s += fmt.Sprintf("Body:\n\n%s\n", content)
 	// The footer
-	s += "\nPress q to quit.\n"
+	s += "Press [ESC] to go back.\n"
+	s += "Press q to quit.\n"
 	return s
 }

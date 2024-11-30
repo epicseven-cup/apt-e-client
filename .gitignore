@@ -2,3 +2,4 @@
 secret/*
 .idea/*
 apt-e-client
+*.log

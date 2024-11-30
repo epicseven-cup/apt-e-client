@@ -78,7 +78,7 @@ func (m model) View() string {
 			cursor = ">" // cursor!
 		}
 		// Render the row
-		s += fmt.Sprintf("%s | %s\n", cursor, message.Snippet)
+		s += fmt.Sprintf("%s | %s |%s\n", cursor, message.Id, message.Snippet)
 	}
 
 	// The footer

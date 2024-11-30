@@ -152,7 +152,7 @@ func InitInbox(maxDisplay int64) *Inbox {
 	messages := make([]*gmail.Message, maxDisplay)
 	// Going through the list of message that we got, since the GetMessageList only return the array of Message Ids we need to grab it again with out GetMessage request
 	for index, message := range messageListRespond.Messages {
-		messageRequest := srv.Users.Messages.Get(user, message.Id)
+		messageRequest := srv.Users.Messages.Get(user, message.Id).Format("full")
 		messageRespond, err := messageRequest.Do()
 		if err != nil {
 			log.Fatalf("Fail to get respond from message resond: %v", err)

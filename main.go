@@ -8,9 +8,15 @@ import (
 )
 
 func main() {
+	//f, err := tea.LogToFile("debug.log", "debug")
+	//if err != nil {
+	//	fmt.Println("fatal:", err)
+	//	os.Exit(1)
+	//}
+	//defer f.Close()
 	p := tea.NewProgram(pkg.InitialModel())
 	if _, err := p.Run(); err != nil {
-		fmt.Println("Alas, There is an error: %v", err)
+		fmt.Printf("Alas, There is an error: %v\n", err)
 		os.Exit(1)
 	}
 }
